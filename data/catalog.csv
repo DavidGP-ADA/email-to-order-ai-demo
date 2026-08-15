@@ -1,0 +1,31 @@
+referencia,descripcion,formato,acabado,unidad_venta,piezas_por_caja,m2_por_caja,precio_caja_eur
+AZ-1001,Azulejo pared blanco brillo,30x60,brillo,caja,6,1.08,13.90
+AZ-1002,Azulejo pared blanco mate,30x60,mate,caja,6,1.08,13.90
+AZ-1003,Azulejo pared gris perla brillo,30x60,brillo,caja,6,1.08,14.60
+AZ-1004,Azulejo pared beige arena,20x60,mate,caja,9,1.08,12.80
+AZ-1005,Azulejo pared verde salvia,20x60,mate,caja,9,1.08,15.40
+AZ-1006,Azulejo metro blanco biselado,10x30,brillo,caja,34,1.02,16.20
+AZ-1007,Azulejo metro negro biselado,10x30,brillo,caja,34,1.02,17.10
+AZ-1008,Azulejo pared marmol carrara,40x120,pulido,caja,2,0.96,29.90
+AZ-1009,Azulejo pared hexagonal blanco,23x27,mate,caja,25,1.25,21.50
+AZ-1010,Azulejo pared azul oceano,25x75,brillo,caja,4,0.75,18.30
+PV-2001,Pavimento porcelanico gris cemento,60x60,mate,caja,4,1.44,19.80
+PV-2002,Pavimento porcelanico gris cemento,90x90,mate,caja,2,1.62,31.50
+PV-2003,Pavimento porcelanico madera roble,20x120,mate,caja,5,1.20,24.90
+PV-2004,Pavimento porcelanico madera nogal,20x120,mate,caja,5,1.20,25.90
+PV-2005,Pavimento porcelanico blanco pulido,60x120,pulido,caja,2,1.44,33.70
+PV-2006,Pavimento porcelanico negro basalto,60x60,mate,caja,4,1.44,22.40
+PV-2007,Pavimento porcelanico terrazo venecia,60x60,mate,caja,4,1.44,23.10
+PV-2008,Pavimento porcelanico antideslizante exterior gris,60x60,antideslizante,caja,4,1.44,21.90
+PV-2009,Pavimento porcelanico piedra caliza,75x75,mate,caja,3,1.69,27.80
+PV-2010,Pavimento porcelanico marmol calacatta,120x120,pulido,caja,1,1.44,48.90
+PE-3001,Rodapie porcelanico gris cemento,8x60,mate,caja,20,,18.60
+PE-3002,Rodapie porcelanico madera roble,8x120,mate,caja,10,,22.40
+PE-3003,Peldano porcelanico gris cemento,33x120,mate,caja,4,,39.90
+PE-3004,Peldano porcelanico madera roble,33x120,mate,caja,4,,42.50
+PE-3005,Listelo decorativo laton,1x60,brillo,caja,25,,28.70
+PE-3006,Perfil esquinero aluminio blanco,1x250,mate,caja,10,,19.90
+QM-4001,Adhesivo porcelanico flexible C2TE gris,saco 25 kg,,saco,1,,9.80
+QM-4002,Adhesivo porcelanico blanco C2TES1,saco 25 kg,,saco,1,,12.60
+QM-4003,Junta coloreada gris cemento,saco 5 kg,,saco,1,,7.40
+QM-4004,Junta epoxi blanca,kit 5 kg,,kit,1,,32.90

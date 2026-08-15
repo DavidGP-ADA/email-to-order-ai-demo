@@ -1,0 +1,117 @@
+# Email-to-Order AI Agent — demo
+
+**An order email arrives, an LLM reads it, the catalog resolves it, a human approves it, and only then does it reach the ERP.**
+
+A runnable n8n workflow with 100% invented data. It replicates the pattern of a system I have
+running with a real client — the pattern, not the client's workflow.
+
+---
+
+## Why this demo exists
+
+Client workflows are never published, not even anonymized: they carry the client's business
+logic, and that confidentiality is part of what they pay for. So instead of publishing
+anything of theirs, I rebuilt the pattern from zero with a fictional company.
+
+**Cerámicas Ejemplo SL does not exist.** Neither do its customers, its catalog or these
+emails. The design decisions — where the LLM is allowed to decide, where it is not, where the
+human gate sits, what gets measured — are the real ones.
+
+---
+
+## What it does
+
+1. An order email comes in (in the demo you paste one into a form; in production it hangs off a mailbox).
+2. The text is normalized: signatures and legal footers out, quoted threads kept — real confirmations often live two replies down.
+3. An LLM extracts a structured order: customer, lines, quantities, units, delivery notes. Low reasoning effort, strict JSON schema, prompt-injection guard.
+4. **Deterministic code** matches each line against the catalog: exact reference first, then description scoring. The LLM never picks the product.
+5. Lines are labelled `high` / `uncertain` / `not_found`. Uncertain lines carry their candidate products.
+6. A proposal is built with prices and warnings, and sent to a **human gate**.
+7. Approved → written to the "ERP". Rejected or not-an-order → logged with the reason.
+8. Telemetry records lines resolved on the first pass, human corrections and cycle time.
+
+```mermaid
+flowchart LR
+    A[Order email] --> B[Normalize] --> C[LLM extracts] --> D[Catalog match\ndeterministic] --> E[Proposal]
+    E --> F[[HUMAN GATE\nreview · correct · approve]]
+    F -- approved --> G[(ERP)]
+    F -- rejected --> H[Logged with reason]
+    G --> I[Telemetry]
+    H --> I
+    style F fill:#2f6f4f,color:#fff
+```
+
+Full architecture and design notes: [`docs/architecture.md`](docs/architecture.md).
+
+---
+
+## The human gate — why it matters
+
+The gate is not a safety net bolted on at the end. It is the product.
+
+An order-entry agent that runs unattended is a liability: one hallucinated reference ships the
+wrong pallet to a customer. So the design splits the job by what each part is actually good at:
+**the LLM reads, code decides what the product is, a person approves.** Uncertain lines arrive
+pre-flagged with their candidates, which turns a 10-minute manual job into a 10-second review.
+
+Three of the sample emails exist specifically to show this:
+
+| Email | What it proves |
+|---|---|
+| `email-07-referencia-inexistente` | A reference that isn't in the catalog → flagged `not_found`, never auto-corrected |
+| `email-08-ambiguo` | A description matching two products → flagged `uncertain` with both candidates, the human picks |
+| `email-12-no-es-pedido` | A complaint, not an order → the system says so and extracts nothing |
+
+---
+
+## Real-world results — the system this replicates
+
+> ⚠️ *Figures below come from my own telemetry on the real system. They are stated with the
+> exact status of each project — no rounding up, no "production" where there is a pilot.*
+
+- **Ceramics manufacturer (the pattern in this demo):** 1,300+ real orders processed,
+  **96% measured accuracy**, **55% time saving** for the admin team — currently an advanced
+  live pilot, final ERP go-live in progress.
+- **HVAC engineering — executive mailbox triage:** 190+ hours saved, measured operation by
+  operation, 98.7% accuracy — in daily production.
+- **Civil & geotechnical engineering — supplier invoicing:** 323 operations, zero recorded
+  errors, with bank reconciliation reviewed by a person before posting — in daily production.
+
+Before/after process diagrams for these: [`docs/before-after.md`](docs/before-after.md).
+
+---
+
+## Try it yourself
+
+1. Import [`workflow/email-to-order-demo.json`](workflow/email-to-order-demo.json) into any n8n instance (self-hosted or cloud).
+2. Create a **Header Auth** credential (header name `x-api-key`, value = your own API key) and select it on the `LLM: interpret order` node. No credentials ship in this repo. The call is plain HTTP, so switching provider or model means editing the `AI config` node — nothing else.
+3. Open the form URL of the trigger node, paste any file from [`data/sample-emails/`](data/sample-emails/), submit.
+4. Watch it run, then approve or correct at the human gate.
+
+The catalog is embedded in the matching node so the workflow runs standalone; the CSVs in
+`data/` are the same data in readable form.
+
+---
+
+## The dataset
+
+| File | Contents |
+|---|---|
+| `data/catalog.csv` | 30 invented references: wall tile, porcelain floor, trims, adhesives — with formats, m² per box and prices |
+| `data/customers.csv` | 8 invented B2B customers |
+| `data/sample-emails/` | 12 emails, easy to hard: exact references, descriptions only, mixed units, messy threads, English, a non-order |
+
+All of it invented for this demo. Any resemblance to a real company is coincidental.
+
+---
+
+## About
+
+David González Palmero — process engineer turned AI automation consultant. I build systems
+that put AI inside real operations, with a human where the decision matters, and I measure
+what they actually deliver.
+
+- LinkedIn: [DavidGonzalezPalmero](https://www.linkedin.com/in/DavidGonzalezPalmero)
+- Case studies: [alquimiadigitalagency.com](https://alquimiadigitalagency.com)
+
+Spanish version of this README: [`README.es.md`](README.es.md) · License: MIT

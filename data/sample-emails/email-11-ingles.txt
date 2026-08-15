@@ -1,0 +1,15 @@
+From: purchasing@iberica-distribution-demo.com
+Subject: Purchase order — hexagonal tile
+
+Hi,
+
+Please process the following order for our export client:
+
+- 45 boxes of ref. AZ-1009 (white hexagonal wall tile)
+- 20 boxes of ref. PV-2007 (terrazzo floor tile)
+- 10 bags of grey grout
+
+Delivery to our Zaragoza warehouse as usual.
+
+Best regards,
+Jorge — Distribuciones Ibérica SA (export desk)
