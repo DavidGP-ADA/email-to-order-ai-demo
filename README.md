@@ -1,9 +1,9 @@
 # Email-to-Order AI Agent — demo
 
-**An order email arrives, an LLM reads it, the catalog resolves it, a human approves it, and only then does it reach the ERP.**
+**An order email arrives, an AI reads it, the catalog resolves it, a human approves it, and only then does it reach the ERP.**
 
 A runnable n8n workflow with 100% invented data. It replicates the pattern of a system I have
-running with a real client — the pattern, not the client's workflow.
+running with a real client. The pattern, not the client's workflow.
 
 ---
 
@@ -14,16 +14,16 @@ logic, and that confidentiality is part of what they pay for. So instead of publ
 anything of theirs, I rebuilt the pattern from zero with a fictional company.
 
 **Cerámicas Ejemplo SL does not exist.** Neither do its customers, its catalog or these
-emails. The design decisions — where the LLM is allowed to decide, where it is not, where the
-human gate sits, what gets measured — are the real ones.
+emails. What is real are the design decisions: where the LLM is allowed to decide, where it
+is not, where the human gate sits, and what gets measured.
 
 ---
 
 ## What it does
 
 1. An order email comes in (in the demo you paste one into a form; in production it hangs off a mailbox).
-2. The text is normalized: signatures and legal footers out, quoted threads kept — real confirmations often live two replies down.
-3. An LLM extracts a structured order: customer, lines, quantities, units, delivery notes. Low reasoning effort, strict JSON schema, prompt-injection guard.
+2. The text is normalized: signatures and legal footers out, quoted threads kept (real confirmations often live two replies down).
+3. An LLM (a large language model, the AI that reads text) extracts a structured order: customer, lines, quantities, units, delivery notes. It runs with guards so a malicious email cannot give the system instructions (technical detail in [`docs/architecture.md`](docs/architecture.md)).
 4. **Deterministic code** matches each line against the catalog: exact reference first, then description scoring. The LLM never picks the product.
 5. Lines are labelled `high` / `uncertain` / `not_found`. Uncertain lines carry their candidate products.
 6. A proposal is built with prices and warnings, and sent to a **human gate**.
@@ -32,8 +32,8 @@ human gate sits, what gets measured — are the real ones.
 
 ```mermaid
 flowchart LR
-    A[Order email] --> B[Normalize] --> C[LLM extracts] --> D[Catalog match\ndeterministic] --> E[Proposal]
-    E --> F[[HUMAN GATE\nreview · correct · approve]]
+    A[Order email] --> B[Normalize] --> C[LLM extracts] --> D["Catalog match<br/>deterministic"] --> E[Proposal]
+    E --> F[["HUMAN GATE<br/>review · correct · approve"]]
     F -- approved --> G[(ERP)]
     F -- rejected --> H[Logged with reason]
     G --> I[Telemetry]
@@ -66,16 +66,18 @@ Three of the sample emails exist specifically to show this:
 
 ## Real-world results — the system this replicates
 
-> ⚠️ *Figures below come from my own telemetry on the real system. They are stated with the
-> exact status of each project — no rounding up, no "production" where there is a pilot.*
+> ⚠️ *Accuracy figures come from each system's own telemetry; time savings compare against
+> the baseline the client's team reports for the manual process. Every figure is stated with
+> the exact status of its project: no rounding up, no "production" where there is a pilot.*
 
 - **Ceramics manufacturer (the pattern in this demo):** 1,300+ real orders processed,
-  **96% measured accuracy**, **55% time saving** for the admin team — currently an advanced
-  live pilot, final ERP go-live in progress.
-- **HVAC engineering — executive mailbox triage:** 190+ hours saved, measured operation by
-  operation, 98.7% accuracy — in daily production.
+  **96% measured accuracy**, **55% time saving** for the admin team. Status: advanced live
+  pilot, final ERP go-live in progress.
+- **HVAC engineering — executive mailbox triage:** 190+ hours saved, tracked operation by
+  operation, 98.7% accuracy. Status: in daily production.
 - **Civil & geotechnical engineering — supplier invoicing:** 323 operations, zero recorded
-  errors, with bank reconciliation reviewed by a person before posting — in daily production.
+  errors, with bank reconciliation reviewed by a person before posting. Status: in daily
+  production.
 
 Before/after process diagrams for these: [`docs/before-after.md`](docs/before-after.md).
 
@@ -84,7 +86,7 @@ Before/after process diagrams for these: [`docs/before-after.md`](docs/before-af
 ## Try it yourself
 
 1. Import [`workflow/email-to-order-demo.json`](workflow/email-to-order-demo.json) into any n8n instance (self-hosted or cloud).
-2. Create a **Header Auth** credential (header name `x-api-key`, value = your own API key) and select it on the `LLM: interpret order` node. No credentials ship in this repo. The call is plain HTTP, so switching provider or model means editing the `AI config` node — nothing else.
+2. Create a **Header Auth** credential (header name `x-api-key`, value = your own API key) and select it on the `LLM: interpret order` node. No credentials ship in this repo. The call is plain HTTP: switching to another Anthropic model is a one-field change in the `AI config` node; switching provider also means adapting the request builder and the response validator to that provider's API.
 3. Open the form URL of the trigger node, paste any file from [`data/sample-emails/`](data/sample-emails/), submit.
 4. Watch it run, then approve or correct at the human gate.
 
@@ -97,7 +99,7 @@ The catalog is embedded in the matching node so the workflow runs standalone; th
 
 | File | Contents |
 |---|---|
-| `data/catalog.csv` | 30 invented references: wall tile, porcelain floor, trims, adhesives — with formats, m² per box and prices |
+| `data/catalog.csv` | 30 invented references: wall tile, porcelain floor, trims, adhesives, with formats, m² per box and prices |
 | `data/customers.csv` | 8 invented B2B customers |
 | `data/sample-emails/` | 12 emails, easy to hard: exact references, descriptions only, mixed units, messy threads, English, a non-order |
 

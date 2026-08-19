@@ -1,9 +1,9 @@
 # Agente de pedidos por email — demo
 
-**Llega un pedido por email, un LLM lo lee, el catálogo lo resuelve, una persona lo aprueba, y solo entonces entra en el ERP.**
+**Llega un pedido por email, una IA lo lee, el catálogo lo resuelve, una persona lo aprueba, y solo entonces entra en el ERP.**
 
 Un workflow de n8n ejecutable, con datos 100% inventados. Replica el patrón de un sistema que
-tengo funcionando con un cliente real — el patrón, no el workflow del cliente.
+tengo funcionando con un cliente real. El patrón, no el workflow del cliente.
 
 ---
 
@@ -22,8 +22,8 @@ compuerta humana y qué se mide.
 ## Qué hace
 
 1. Entra un email de pedido (en la demo lo pegas en un formulario; en producción cuelga de un buzón).
-2. Se normaliza el texto: fuera firmas y avisos legales, dentro los hilos citados — las confirmaciones reales suelen estar dos respuestas más abajo.
-3. Un LLM extrae el pedido estructurado: cliente, líneas, cantidades, unidades, notas de entrega. Esfuerzo de razonamiento bajo, esquema JSON estricto y bloque anti-inyección.
+2. Se normaliza el texto: fuera firmas y avisos legales, dentro los hilos citados (las confirmaciones reales suelen estar dos respuestas más abajo).
+3. Un LLM (un modelo de lenguaje, la IA que lee el texto) extrae el pedido estructurado: cliente, líneas, cantidades, unidades, notas de entrega. Corre con protecciones para que un email malicioso no pueda darle órdenes al sistema (el detalle técnico está en [`docs/architecture.md`](docs/architecture.md)).
 4. **Código determinista** cruza cada línea con el catálogo: primero referencia exacta, después puntuación por descripción. El LLM nunca elige el producto.
 5. Cada línea queda etiquetada `alta` / `dudosa` / `no encontrada`. Las dudosas llevan sus productos candidatos.
 6. Se monta la propuesta con precios y avisos, y se manda a la **compuerta humana**.
@@ -32,8 +32,8 @@ compuerta humana y qué se mide.
 
 ```mermaid
 flowchart LR
-    A[Email de pedido] --> B[Normalizar] --> C[LLM interpreta] --> D[Cruce con catálogo\ndeterminista] --> E[Propuesta]
-    E --> F[[COMPUERTA HUMANA\nrevisar · corregir · aprobar]]
+    A[Email de pedido] --> B[Normalizar] --> C[LLM interpreta] --> D["Cruce con catálogo<br/>determinista"] --> E[Propuesta]
+    E --> F[["COMPUERTA HUMANA<br/>revisar · corregir · aprobar"]]
     F -- aprobado --> G[(ERP)]
     F -- rechazado --> H[Registrado con motivo]
     G --> I[Telemetría]
@@ -67,17 +67,19 @@ Tres de los emails de ejemplo existen justo para enseñar esto:
 
 ## Resultados reales — el sistema que replica
 
-> ⚠️ *Las cifras vienen de mi propia telemetría en el sistema real, y van con el estado exacto
-> de cada proyecto: sin redondeos al alza y sin llamar "producción" a lo que es un piloto.*
+> ⚠️ *Los porcentajes de acierto salen de la telemetría de cada sistema; el ahorro de tiempo
+> se calcula sobre la línea base que declara el propio equipo del cliente para el proceso
+> manual. Cada cifra va con el estado exacto de su proyecto: sin redondeos al alza y sin
+> llamar "producción" a lo que es un piloto.*
 
 - **Fabricante cerámico (el patrón de esta demo):** más de 1.300 pedidos reales procesados,
-  **96% de acierto medido**, **55% de ganancia de tiempo** para el equipo administrativo —
-  hoy en piloto avanzado, con el arranque sobre el ERP oficial en curso.
-- **Ingeniería de climatización — buzón de dirección:** más de 190 horas ahorradas, medidas
-  operación a operación, 98,7% de acierto — en uso diario en producción.
+  **96% de acierto medido**, **55% de ganancia de tiempo** para el equipo administrativo.
+  Estado: piloto avanzado, con el arranque sobre el ERP oficial en curso.
+- **Ingeniería de climatización — buzón de dirección:** más de 190 horas ahorradas, contadas
+  operación a operación, 98,7% de acierto. Estado: en uso diario en producción.
 - **Ingeniería civil y geotécnica — facturas de proveedor:** 323 operaciones, cero errores
-  registrados, con conciliación bancaria revisada por una persona antes de contabilizar — en
-  uso diario en producción.
+  registrados, con conciliación bancaria revisada por una persona antes de contabilizar.
+  Estado: en uso diario en producción.
 
 Diagramas antes/después de estos procesos: [`docs/before-after.md`](docs/before-after.md).
 
@@ -86,7 +88,7 @@ Diagramas antes/después de estos procesos: [`docs/before-after.md`](docs/before
 ## Pruébalo
 
 1. Importa [`workflow/email-to-order-demo.json`](workflow/email-to-order-demo.json) en cualquier n8n (autoalojado o cloud).
-2. Crea una credencial **Header Auth** (nombre de cabecera `x-api-key`, valor = tu propia clave) y selecciónala en el nodo `LLM: interpret order`. Este repo no incluye credenciales. La llamada es HTTP directo: cambiar de proveedor o de modelo se hace en el nodo `AI config`, sin tocar nada más.
+2. Crea una credencial **Header Auth** (nombre de cabecera `x-api-key`, valor = tu propia clave) y selecciónala en el nodo `LLM: interpret order`. Este repo no incluye credenciales. La llamada es HTTP directo: cambiar a otro modelo de Anthropic es un campo en el nodo `AI config`; cambiar de proveedor exige además adaptar el nodo que monta la petición y el que valida la respuesta a la API de ese proveedor.
 3. Abre la URL del formulario del nodo trigger, pega cualquier archivo de [`data/sample-emails/`](data/sample-emails/) y envía.
 4. Míralo correr y aprueba o corrige en la compuerta humana.
 
@@ -99,7 +101,7 @@ El catálogo va embebido en el nodo de cruce para que el workflow funcione solo;
 
 | Archivo | Contenido |
 |---|---|
-| `data/catalog.csv` | 30 referencias inventadas: azulejo, pavimento porcelánico, piezas especiales, químicos — con formatos, m² por caja y precios |
+| `data/catalog.csv` | 30 referencias inventadas: azulejo, pavimento porcelánico, piezas especiales, químicos, con formatos, m² por caja y precios |
 | `data/customers.csv` | 8 clientes B2B inventados |
 | `data/sample-emails/` | 12 emails de fácil a difícil: referencias exactas, solo descripciones, unidades mezcladas, hilos desordenados, inglés, y uno que no es pedido |
 
