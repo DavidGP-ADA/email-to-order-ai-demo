@@ -5,6 +5,8 @@
 A runnable n8n workflow with 100% invented data. It replicates the pattern of a system I have
 running with a real client. The pattern, not the client's workflow.
 
+![The full workflow in n8n: from the incoming email to the human gate, the ERP write and the telemetry log](docs/img/workflow-canvas.png)
+
 ---
 
 ## Why this demo exists
@@ -53,6 +55,8 @@ An order-entry agent that runs unattended is a liability: one hallucinated refer
 wrong pallet to a customer. So the design splits the job by what each part is actually good at:
 **the LLM reads, code decides what the product is, a person approves.** Uncertain lines arrive
 pre-flagged with their candidates, which turns a 10-minute manual job into a 10-second review.
+
+![The human gate with an ambiguous order: two uncertain lines, each with its warning and its candidate products, waiting for a person to decide](docs/img/human-gate.png)
 
 Three of the sample emails exist specifically to show this:
 

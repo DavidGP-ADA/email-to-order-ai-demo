@@ -5,6 +5,8 @@
 Un workflow de n8n ejecutable, con datos 100% inventados. Replica el patrón de un sistema que
 tengo funcionando con un cliente real. El patrón, no el workflow del cliente.
 
+![El workflow completo en n8n: del email entrante a la compuerta humana, el volcado al ERP y el registro de telemetría](docs/img/workflow-canvas.png)
+
 ---
 
 ## Por qué existe esta demo
@@ -54,6 +56,8 @@ el palet equivocado a un cliente. Por eso el diseño reparte el trabajo según l
 cada parte: **el LLM lee, el código decide qué producto es, una persona aprueba.** Las líneas
 dudosas llegan ya marcadas con sus candidatos, y eso convierte 10 minutos de trabajo manual en
 10 segundos de revisión.
+
+![La compuerta humana con un pedido ambiguo: dos líneas dudosas, cada una con su aviso y sus productos candidatos, esperando a que decida una persona](docs/img/human-gate.png)
 
 Tres de los emails de ejemplo existen justo para enseñar esto:
 
