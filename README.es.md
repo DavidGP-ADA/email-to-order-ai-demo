@@ -93,8 +93,8 @@ Diagramas antes/después de estos procesos: [`docs/before-after.md`](docs/before
 4. Míralo correr y aprueba o corrige en la compuerta humana.
 5. Cada ejecución añade filas CSV a `orders-log.csv` y `telemetry-log.csv` en la ruta que
    marca `AI config` → `results_dir` (por defecto `/tmp`). La carpeta [`results/`](results/)
-   enseña el formato. Escribir a disco requiere n8n autoalojado; en n8n Cloud, quita los dos
-   nodos de append.
+   enseña el formato. Escribir a disco requiere n8n autoalojado; en n8n Cloud, sustituye los
+   dos nodos de append por una Data Table de n8n (o quítalos).
 6. Opcional pero recomendado: importa [`workflow/error-handler.json`](workflow/error-handler.json),
    apunta su nodo de email a tu credencial SMTP y selecciónalo como Error Workflow en los
    ajustes del workflow principal. Así un fallo te avisa en vez de morir en silencio.
@@ -118,6 +118,8 @@ orden:
 - **Colas y límites de ritmo** en el disparador del buzón, para que una ráfaga de emails no
   sature el API del LLM.
 - **La identidad desde el login (SSO)** en vez de un nombre tecleado en un formulario.
+- **El email crudo archivado nada más entrar.** En producción el propio buzón es el registro;
+  en la demo, el historial de ejecuciones de n8n guarda cada envío.
 
 ---
 

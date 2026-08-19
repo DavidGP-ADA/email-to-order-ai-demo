@@ -91,7 +91,8 @@ Before/after process diagrams for these: [`docs/before-after.md`](docs/before-af
 4. Watch it run, then approve or correct at the human gate.
 5. Each run appends CSV rows to `orders-log.csv` and `telemetry-log.csv` under the path set
    in `AI config` → `results_dir` (default `/tmp`). The [`results/`](results/) folder shows
-   the format. File writes need self-hosted n8n; on n8n Cloud, remove the two append nodes.
+   the format. File writes need self-hosted n8n; on n8n Cloud, swap the two append nodes for
+   an n8n Data Table (or remove them).
 6. Optional but recommended: import [`workflow/error-handler.json`](workflow/error-handler.json),
    point its email node at your SMTP credential, and select it as the Error Workflow in the
    main workflow's settings. A failed run then alerts you instead of dying quietly.
@@ -115,6 +116,8 @@ order:
 - **Queues and rate limits** on the mailbox trigger, so a burst of emails does not hammer the
   LLM API.
 - **Identity from the login (SSO)** instead of a name typed into a form.
+- **Raw inbound emails archived on arrival.** In production the mailbox itself is the record;
+  in the demo, the n8n execution history keeps each submission.
 
 ---
 
