@@ -27,8 +27,8 @@ compuerta humana y qué se mide.
 4. **Código determinista** cruza cada línea con el catálogo: primero referencia exacta, después puntuación por descripción. El LLM nunca elige el producto.
 5. Cada línea queda etiquetada `alta` / `dudosa` / `no encontrada`. Las dudosas llevan sus productos candidatos.
 6. Se monta la propuesta con precios y avisos, y se manda a la **compuerta humana**.
-7. Aprobado → se escribe en el "ERP" y se añade a `orders-log.csv`. Rechazado o no-es-un-pedido → se registra con el motivo.
-8. La telemetría escribe una fila CSV por ejecución, se apruebe o no: líneas resueltas a la primera, correcciones humanas, tiempo de ciclo, modelo y versión del prompt.
+7. Aprobado → se escribe en el "ERP" y se registra en una Data Table, una fila por línea de pedido. Rechazado o no-es-un-pedido → se registra con el motivo.
+8. La telemetría registra una fila por ejecución, se apruebe o no: líneas resueltas a la primera, correcciones humanas, tiempo de ciclo, modelo y versión del prompt.
 
 ```mermaid
 flowchart LR
@@ -88,13 +88,13 @@ Diagramas antes/después de estos procesos: [`docs/before-after.md`](docs/before
 ## Pruébalo
 
 1. Importa [`workflow/email-to-order-demo.json`](workflow/email-to-order-demo.json) en cualquier n8n (autoalojado o cloud).
-2. Crea una credencial **Header Auth** (nombre de cabecera `x-api-key`, valor = tu propia clave) y selecciónala en el nodo `LLM: interpret order`. Este repo no incluye credenciales. La llamada es HTTP directo: cambiar a otro modelo de Anthropic es un campo en el nodo `AI config`; cambiar de proveedor exige además adaptar el nodo que monta la petición y el que valida la respuesta a la API de ese proveedor.
+2. Crea una credencial de **OpenRouter** en n8n (tipo nativo, solo tu clave) y selecciónala en el nodo `LLM: interpret order`. Este repo no incluye credenciales. La llamada es HTTP directo y OpenAI-compatible: cambiar de modelo es un campo en `AI config`, y cualquier proveedor OpenAI-compatible (o un endpoint local) funciona cambiando ahí el endpoint más la credencial del nodo.
 3. Abre la URL del formulario del nodo trigger, pega cualquier archivo de [`data/sample-emails/`](data/sample-emails/) y envía.
 4. Míralo correr y aprueba o corrige en la compuerta humana.
-5. Cada ejecución añade filas CSV a `orders-log.csv` y `telemetry-log.csv` en la ruta que
-   marca `AI config` → `results_dir` (por defecto `/tmp`). La carpeta [`results/`](results/)
-   enseña el formato. Escribir a disco requiere n8n autoalojado; en n8n Cloud, sustituye los
-   dos nodos de append por una Data Table de n8n (o quítalos).
+5. Cada ejecución inserta filas en dos **Data Tables** de n8n: `demo_orders_log` (una fila
+   por línea de pedido aprobada) y `demo_telemetry_log` (una fila por ejecución). Créalas una
+   vez con los nombres de columna que enseña [`results/`](results/) y los dos nodos `Log ...`
+   las encuentran por nombre. Funciona igual en n8n Cloud y autoalojado; sin acceso a disco.
 6. Opcional pero recomendado: importa [`workflow/error-handler.json`](workflow/error-handler.json),
    apunta su nodo de email a tu credencial SMTP y selecciónalo como Error Workflow en los
    ajustes del workflow principal. Así un fallo te avisa en vez de morir en silencio.
@@ -130,7 +130,7 @@ orden:
 | `data/catalog.csv` | 30 referencias inventadas: azulejo, pavimento porcelánico, piezas especiales, químicos, con formatos, m² por caja y precios |
 | `data/customers.csv` | 8 clientes B2B inventados |
 | `data/sample-emails/` | 12 emails de fácil a difícil: referencias exactas, solo descripciones, unidades mezcladas, hilos desordenados, inglés, y uno que no es pedido |
-| `results/` | CSVs con solo la cabecera a los que el workflow añade filas: una por línea de pedido aprobada, y una de telemetría por ejecución |
+| `results/` | Espejos en CSV de las dos Data Tables: una fila por línea de pedido aprobada, y una de telemetría por ejecución |
 
 Todo inventado para esta demo. Cualquier parecido con una empresa real es casualidad.
 

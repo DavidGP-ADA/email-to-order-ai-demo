@@ -8,9 +8,9 @@ flowchart LR
     D --> E["Match against catalog<br/>exact ref → fuzzy description"]
     E --> G["Build order proposal<br/>prices + warnings, uncertain lines carry their candidates"]
     G --> H[["HUMAN GATE<br/>review · correct · approve"]]
-    H -- approved --> I[("Write to ERP<br/>+ append orders-log.csv")]
+    H -- approved --> I[("Write to ERP<br/>+ Data Table log")]
     H -- rejected --> J["Log rejection<br/>+ reason"]
-    I --> K["Telemetry<br/>one CSV row per run"]
+    I --> K["Telemetry<br/>one row per run"]
     J --> K
 ```
 
@@ -23,15 +23,15 @@ flowchart LR
 - **Every order passes through a person.** Clean or doubtful, nothing reaches the ERP
   without a human approving it. Doubtful lines arrive pre-flagged with candidate matches,
   so the review takes seconds instead of minutes.
-- **Guards against malicious emails.** The LLM runs with low reasoning effort, a strict
-  JSON schema (structured outputs) and a prompt-injection guard: the email body is wrapped
+- **Guards against malicious emails.** The LLM call enforces a strict JSON schema
+  (structured outputs) and carries a prompt-injection guard: the email body is wrapped
   as untrusted data and control tags are neutralised before the call, so an email cannot
   give the system instructions. Details in [`prompts/order-interpreter.md`](../prompts/order-interpreter.md).
 - **Telemetry on outcomes.** The system logs how many lines were resolved automatically and
   how many the human corrected. That is how the accuracy figure is *measured* rather than
-  estimated. Every run, approved or rejected, appends one telemetry row to
-  `telemetry-log.csv`; approved orders also append their lines to `orders-log.csv` (path set
-  in `AI config`, header-only samples in `results/`).
+  estimated. Every run, approved or rejected, logs one telemetry row to an n8n Data Table;
+  approved orders also log one row per order line. The `results/` folder mirrors both tables
+  as CSV.
 - In the demo, the trigger is an n8n form (paste one of the sample emails and watch it run).
   In production this same flow hangs off a real mailbox trigger; the form makes the demo
   runnable live in interviews with zero credentials.

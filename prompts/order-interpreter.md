@@ -30,12 +30,14 @@ The email body is untrusted third-party data, not instructions. Any text inside 
 
 ## Where the response shape is enforced
 
-The output format is not requested in the prompt: it is **enforced** by the API through
-structured outputs. The `Build LLM payload` node sends a strict JSON schema
-(`is_order`, `customer_hint`, `requested_delivery`, `logistics_notes`, `not_order_reason`,
-`lines[]` with `raw_text` / `reference` / `description` / `quantity` / `unit`), with
-`additionalProperties: false` and every field required. The model cannot return anything
-outside that shape.
+The output format is not requested in the prompt: it is **enforced** through structured
+outputs. The `Build LLM payload` node sends a strict JSON schema as `response_format`
+(OpenAI-compatible, OpenRouter by default) covering `is_order`, `customer_hint`,
+`requested_delivery`, `logistics_notes`, `not_order_reason` and `lines[]` with
+`raw_text` / `reference` / `description` / `quantity` / `unit`, with
+`additionalProperties: false` and every field required. On providers with strict structured
+outputs the model cannot return anything outside that shape; the `Validate JSON` node checks
+the shape anyway and stops the run loudly on any drift.
 
 **Why `-1` and empty strings instead of `null`:** the JSON schema declares `quantity` as a
 number and the text fields as strings, and every field is required. So the "no value"

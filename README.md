@@ -27,8 +27,8 @@ is not, where the human gate sits, and what gets measured.
 4. **Deterministic code** matches each line against the catalog: exact reference first, then description scoring. The LLM never picks the product.
 5. Lines are labelled `high` / `uncertain` / `not_found`. Uncertain lines carry their candidate products.
 6. A proposal is built with prices and warnings, and sent to a **human gate**.
-7. Approved → written to the "ERP" and appended to `orders-log.csv`. Rejected or not-an-order → logged with the reason.
-8. Telemetry writes one CSV row per run, approved or not: lines resolved on the first pass, human corrections, cycle time, model and prompt version.
+7. Approved → written to the "ERP" and logged to a Data Table, one row per order line. Rejected or not-an-order → logged with the reason.
+8. Telemetry logs one row per run, approved or not: lines resolved on the first pass, human corrections, cycle time, model and prompt version.
 
 ```mermaid
 flowchart LR
@@ -86,13 +86,13 @@ Before/after process diagrams for these: [`docs/before-after.md`](docs/before-af
 ## Try it yourself
 
 1. Import [`workflow/email-to-order-demo.json`](workflow/email-to-order-demo.json) into any n8n instance (self-hosted or cloud).
-2. Create a **Header Auth** credential (header name `x-api-key`, value = your own API key) and select it on the `LLM: interpret order` node. No credentials ship in this repo. The call is plain HTTP: switching to another Anthropic model is a one-field change in the `AI config` node; switching provider also means adapting the request builder and the response validator to that provider's API.
+2. Create an **OpenRouter** credential in n8n (native type, just your API key) and select it on the `LLM: interpret order` node. No credentials ship in this repo. The call is plain HTTP and OpenAI-compatible: switching models is one field in `AI config`, and any OpenAI-compatible provider (or a local endpoint) works by changing the endpoint there plus the node's credential.
 3. Open the form URL of the trigger node, paste any file from [`data/sample-emails/`](data/sample-emails/), submit.
 4. Watch it run, then approve or correct at the human gate.
-5. Each run appends CSV rows to `orders-log.csv` and `telemetry-log.csv` under the path set
-   in `AI config` → `results_dir` (default `/tmp`). The [`results/`](results/) folder shows
-   the format. File writes need self-hosted n8n; on n8n Cloud, swap the two append nodes for
-   an n8n Data Table (or remove them).
+5. Each run inserts rows into two n8n **Data Tables**: `demo_orders_log` (one row per
+   approved order line) and `demo_telemetry_log` (one row per run). Create them once with
+   the column names shown in [`results/`](results/) and the two `Log ...` nodes find them by
+   name. Works on n8n Cloud and self-hosted alike; no file access needed.
 6. Optional but recommended: import [`workflow/error-handler.json`](workflow/error-handler.json),
    point its email node at your SMTP credential, and select it as the Error Workflow in the
    main workflow's settings. A failed run then alerts you instead of dying quietly.
@@ -128,7 +128,7 @@ order:
 | `data/catalog.csv` | 30 invented references: wall tile, porcelain floor, trims, adhesives, with formats, m² per box and prices |
 | `data/customers.csv` | 8 invented B2B customers |
 | `data/sample-emails/` | 12 emails, easy to hard: exact references, descriptions only, mixed units, messy threads, English, a non-order |
-| `results/` | Header-only CSVs the workflow appends to: one row per approved order line, one telemetry row per run |
+| `results/` | CSV mirrors of the two Data Tables: one row per approved order line, one telemetry row per run |
 
 All of it invented for this demo. Any resemblance to a real company is coincidental.
 

@@ -53,25 +53,13 @@
             {
               "id": "endpoint",
               "name": "endpoint",
-              "value": "https://api.anthropic.com/v1/messages",
+              "value": "https://openrouter.ai/api/v1/chat/completions",
               "type": "string"
             },
             {
               "id": "model",
               "name": "model",
-              "value": "claude-opus-5",
-              "type": "string"
-            },
-            {
-              "id": "api_version",
-              "name": "api_version",
-              "value": "2023-06-01",
-              "type": "string"
-            },
-            {
-              "id": "effort",
-              "name": "effort",
-              "value": "low",
+              "value": "anthropic/claude-sonnet-4.6",
               "type": "string"
             },
             {
@@ -84,12 +72,6 @@
               "id": "prompt_version",
               "name": "prompt_version",
               "value": "v1.1",
-              "type": "string"
-            },
-            {
-              "id": "results_dir",
-              "name": "results_dir",
-              "value": "/tmp",
               "type": "string"
             },
             {
@@ -111,11 +93,11 @@
         -400,
         300
       ],
-      "notes": "All model settings live here, outside the code. Swapping Anthropic models is a one-field change; a different provider also needs its request shape in 'Build LLM payload' and its response format in 'Validate JSON'."
+      "notes": "All model settings live here, outside the code. The call is OpenAI-compatible (OpenRouter by default): swapping models is one field, and any OpenAI-compatible endpoint (or a local one) is the endpoint field plus its credential on the HTTP node."
     },
     {
       "parameters": {
-        "jsCode": "// Builds the request body. Two things happen here that matter in production:\n// 1. limpia() neutralises control tags, so an email cannot impersonate the prompt.\n// 2. json_schema forces the shape of the answer instead of hoping for valid JSON.\nconst cfg = $json;\nconst src = $('Normalize text').first().json;\n\nconst limpia = (s) => String(s || '')\n  .replace(/<\\s*\\/?\\s*(input|seguridad|reglas|rol|prompt_config|system)\\b[^>]*>/gi, '[tag]');\n\nconst SCHEMA = {\n  type: 'object',\n  additionalProperties: false,\n  required: ['is_order', 'customer_hint', 'requested_delivery', 'logistics_notes', 'not_order_reason', 'lines'],\n  properties: {\n    is_order: { type: 'boolean' },\n    customer_hint: { type: 'string' },\n    requested_delivery: { type: 'string' },\n    logistics_notes: { type: 'string' },\n    not_order_reason: { type: 'string' },\n    lines: {\n      type: 'array',\n      items: {\n        type: 'object',\n        additionalProperties: false,\n        required: ['raw_text', 'reference', 'description', 'quantity', 'unit'],\n        properties: {\n          raw_text: { type: 'string' },\n          reference: { type: 'string' },\n          description: { type: 'string' },\n          quantity: { type: 'number' },\n          unit: { type: 'string', enum: ['cajas', 'm2', 'sacos', 'kits', 'unidades', ''] }\n        }\n      }\n    }\n  }\n};\n\nconst payload = {\n  model: cfg.model,\n  max_tokens: cfg.max_tokens,\n  system: cfg.system_prompt,\n  output_config: {\n    effort: cfg.effort,\n    format: { type: 'json_schema', schema: SCHEMA }\n  },\n  messages: [\n    {\n      role: 'user',\n      content: '<input>\\n' + limpia(src.cleanText) + '\\n</input>'\n    }\n  ]\n};\n\nreturn [{ json: { ...src, payload } }];"
+        "jsCode": "// Builds the request body. Two things happen here that matter in production:\n// 1. limpia() neutralises control tags, so an email cannot impersonate the prompt.\n// 2. json_schema forces the shape of the answer instead of hoping for valid JSON.\nconst cfg = $json;\nconst src = $('Normalize text').first().json;\n\nconst limpia = (s) => String(s || '')\n  .replace(/<\\s*\\/?\\s*(input|seguridad|reglas|rol|prompt_config|system)\\b[^>]*>/gi, '[tag]');\n\nconst SCHEMA = {\n  type: 'object',\n  additionalProperties: false,\n  required: ['is_order', 'customer_hint', 'requested_delivery', 'logistics_notes', 'not_order_reason', 'lines'],\n  properties: {\n    is_order: { type: 'boolean' },\n    customer_hint: { type: 'string' },\n    requested_delivery: { type: 'string' },\n    logistics_notes: { type: 'string' },\n    not_order_reason: { type: 'string' },\n    lines: {\n      type: 'array',\n      items: {\n        type: 'object',\n        additionalProperties: false,\n        required: ['raw_text', 'reference', 'description', 'quantity', 'unit'],\n        properties: {\n          raw_text: { type: 'string' },\n          reference: { type: 'string' },\n          description: { type: 'string' },\n          quantity: { type: 'number' },\n          unit: { type: 'string', enum: ['cajas', 'm2', 'sacos', 'kits', 'unidades', ''] }\n        }\n      }\n    }\n  }\n};\n\n// OpenAI-compatible body (OpenRouter by default). The schema travels as response_format.\nconst payload = {\n  model: cfg.model,\n  max_tokens: cfg.max_tokens,\n  messages: [\n    { role: 'system', content: cfg.system_prompt },\n    { role: 'user', content: '<input>\\n' + limpia(src.cleanText) + '\\n</input>' }\n  ],\n  response_format: {\n    type: 'json_schema',\n    json_schema: { name: 'order_extraction', strict: true, schema: SCHEMA }\n  }\n};\n\nreturn [{ json: { ...src, payload } }];"
       },
       "id": "build-payload",
       "name": "Build LLM payload",
@@ -131,15 +113,11 @@
       "parameters": {
         "method": "POST",
         "url": "={{ $('AI config').first().json.endpoint }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "anthropic-version",
-              "value": "={{ $('AI config').first().json.api_version }}"
-            },
             {
               "name": "content-type",
               "value": "application/json"
@@ -163,11 +141,11 @@
       ],
       "retryOnFail": true,
       "waitBetweenTries": 3000,
-      "notes": "Bring your own API key: create a Header Auth credential with name 'x-api-key' and your key as value, then select it here. Direct HTTP on purpose: swapping Anthropic models is a one-field change in 'AI config'; another provider also needs its request shape in 'Build LLM payload' and its response format in 'Validate JSON'."
+      "notes": "Bring your own key: create an OpenRouter credential in n8n and select it here. Direct HTTP on purpose: the body is OpenAI-compatible chat/completions, so any compatible provider works by changing 'AI config' (endpoint + model) and this node's credential."
     },
     {
       "parameters": {
-        "jsCode": "// Validate the model output against the expected shape. A malformed answer is flagged,\n// never silently accepted.\nconst prev = $('Normalize text').first().json;\n\nconst blocks = Array.isArray($json.content) ? $json.content : [];\nconst textBlock = blocks.find(b => b && b.type === 'text' && b.text);\nconst rawOut = textBlock ? textBlock.text : ($json.text || '');\n\nlet parsed = null;\nlet parseError = null;\ntry {\n  const match = String(rawOut).match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(match ? match[0] : rawOut);\n} catch (e) {\n  parseError = e.message;\n}\n\nconst problems = [];\nif (!rawOut) problems.push('The model returned no text block. stop_reason: ' + ($json.stop_reason || 'unknown'));\nelse if (!parsed) problems.push('LLM did not return valid JSON: ' + parseError);\nelse {\n  if (typeof parsed.is_order !== 'boolean') problems.push('is_order missing');\n  if (parsed.is_order && !Array.isArray(parsed.lines)) problems.push('lines missing');\n}\n\n// Loud failure beats a green run with no data.\nif (problems.length) {\n  throw new Error('Extraction failed - ' + problems.join(' | '));\n}\n\nreturn [{ json: { ...prev, extraction: parsed, schemaProblems: problems, schemaOk: true } }];"
+        "jsCode": "// Validate the model output against the expected shape. A malformed answer is flagged,\n// never silently accepted.\nconst prev = $('Normalize text').first().json;\n\n// OpenAI-compatible response (OpenRouter): the answer lives in choices[0].message.content.\nconst choice = Array.isArray($json.choices) ? $json.choices[0] : null;\nconst msg = choice && choice.message ? choice.message : null;\nconst rawOut = msg && typeof msg.content === 'string' ? msg.content : '';\n\nlet parsed = null;\nlet parseError = null;\ntry {\n  const match = String(rawOut).match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(match ? match[0] : rawOut);\n} catch (e) {\n  parseError = e.message;\n}\n\nconst problems = [];\nif (!rawOut) problems.push('The model returned no content. finish_reason: ' + (choice ? (choice.finish_reason || 'unknown') : 'no choices') + ($json.error ? ' | provider error: ' + JSON.stringify($json.error).slice(0, 200) : ''));\nelse if (!parsed) problems.push('LLM did not return valid JSON: ' + parseError);\nelse {\n  if (typeof parsed.is_order !== 'boolean') problems.push('is_order missing');\n  if (parsed.is_order && !Array.isArray(parsed.lines)) problems.push('lines missing');\n}\n\n// Loud failure beats a green run with no data.\nif (problems.length) {\n  throw new Error('Extraction failed - ' + problems.join(' | '));\n}\n\nreturn [{ json: { ...prev, extraction: parsed, schemaProblems: problems, schemaOk: true } }];"
       },
       "id": "validate-json",
       "name": "Validate JSON",
@@ -327,7 +305,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// \"ERP\" write. In the demo the rows are appended to orders-log.csv; in production this is the ERP API or DB.\nconst gate = $json;\nconst ctx = $('Build order proposal').first().json;\nconst orderId = 'DEMO-' + String(Date.now()).slice(-6);\n// Who SUBMITTED the email (first form) and who APPROVED at the gate are recorded separately on purpose.\nconst approvedBy = gate['Approved by (name)'] || ctx.reviewer;\n\nconst rows = ctx.proposal.lines.map(l => ({\n  order_id: orderId,\n  customer_code: ctx.proposal.customerCode || '',\n  customer: ctx.proposal.customer,\n  reference: l.reference,\n  product: l.product,\n  quantity: l.quantity,\n  unit: l.unit,\n  line_total_eur: l.lineTotal,\n  submitted_by: ctx.reviewer,\n  approved_by: approvedBy,\n  decision: gate.Decision\n}));\n\nreturn [{ json: { ...ctx, orderId, decision: gate.Decision, corrections: Number(gate['Lines corrected by hand'] || 0), reviewerNotes: gate['Corrections or rejection reason'] || '', approvedBy, erpRows: rows } }];"
+        "jsCode": "// \"ERP\" write. In the demo the rows go to a Data Table; in production this is the ERP API or DB.\nconst gate = $json;\nconst ctx = $('Build order proposal').first().json;\nconst orderId = 'DEMO-' + String(Date.now()).slice(-6);\n// Who SUBMITTED the email (first form) and who APPROVED at the gate are recorded separately on purpose.\nconst approvedBy = gate['Approved by (name)'] || ctx.reviewer;\n\nconst rows = ctx.proposal.lines.map(l => ({\n  order_id: orderId,\n  customer_code: ctx.proposal.customerCode || '',\n  customer: ctx.proposal.customer,\n  reference: l.reference,\n  product: l.product,\n  quantity: typeof l.quantity === 'number' ? l.quantity : null,\n  unit: l.unit,\n  line_total_eur: l.lineTotal,\n  submitted_by: ctx.reviewer,\n  approved_by: approvedBy,\n  decision: gate.Decision\n}));\n\nreturn [{ json: { ...ctx, orderId, decision: gate.Decision, corrections: Number(gate['Lines corrected by hand'] || 0), reviewerNotes: gate['Corrections or rejection reason'] || '', approvedBy, erpRows: rows } }];"
       },
       "id": "write-erp",
       "name": "Write to ERP (simulated)",
@@ -366,69 +344,67 @@
     },
     {
       "parameters": {
-        "jsCode": "// Append-ready CSV rows for the \"ERP\" log. No header here: results/orders-log.csv ships with it.\nconst esc = v => { const s = v === null || v === undefined ? '' : String(v); return /[\",\\n]/.test(s) ? '\"' + s.replace(/\"/g, '\"\"') + '\"' : s; };\nconst rows = $json.erpRows.map(r => [r.order_id, r.customer_code, r.customer, r.reference, r.product, r.quantity, r.unit, r.line_total_eur, r.submitted_by, r.approved_by, r.decision].map(esc).join(','));\nconst text = rows.join('\\n') + '\\n';\nreturn [{ json: { csv: text }, binary: { data: { data: Buffer.from(text, 'utf8').toString('base64'), mimeType: 'text/csv', fileName: 'orders-log.csv' } } }];"
+        "jsCode": "// One item per ERP row, so the Data Table stores one row per order line.\nreturn $json.erpRows.map(r => ({ json: r }));"
       },
-      "id": "order-rows-csv",
-      "name": "Order rows to CSV",
+      "id": "split-order-rows",
+      "name": "Split order rows",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         1800,
         40
       ],
-      "notes": "results/orders-log.csv ships with the header; each run appends data rows only."
+      "notes": "The order log keeps one row per LINE, matching results/orders-log.csv."
     },
     {
       "parameters": {
-        "operation": "write",
-        "fileName": "={{ $('AI config').first().json.results_dir + '/orders-log.csv' }}",
-        "dataPropertyName": "data",
-        "options": {
-          "append": true
-        }
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "demo_orders_log"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null
+        },
+        "options": {}
       },
-      "id": "append-orders-log",
-      "name": "Append orders-log.csv",
-      "type": "n8n-nodes-base.readWriteFile",
+      "id": "log-order-rows",
+      "name": "Log order rows",
+      "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
         2020,
         40
       ],
-      "notes": "Writes to disk, so it needs self-hosted n8n (on n8n Cloud, remove the two append nodes). Path comes from results_dir in 'AI config'; seed the file with the header from results/orders-log.csv."
+      "notes": "Native n8n Data Table: works on Cloud and self-hosted, no file access needed. Create a table named demo_orders_log with the column names from results/orders-log.csv and this node finds it by name."
     },
     {
       "parameters": {
-        "jsCode": "// One telemetry CSV row per run. No header here: results/telemetry-log.csv ships with it.\nconst esc = v => { const s = v === null || v === undefined ? '' : String(v); return /[\",\\n]/.test(s) ? '\"' + s.replace(/\"/g, '\"\"') + '\"' : s; };\nconst t = $json;\nconst row = [t.order_id, t.outcome, t.total_lines, t.auto_resolved_lines, t.flagged_lines, t.human_corrections, t.first_pass_accuracy_pct, t.human_correction_rate_pct, t.cycle_seconds, t.reviewer, t.model, t.prompt_version].map(esc).join(',') + '\\n';\nreturn [{ json: t, binary: { data: { data: Buffer.from(row, 'utf8').toString('base64'), mimeType: 'text/csv', fileName: 'telemetry-log.csv' } } }];"
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "demo_telemetry_log"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null
+        },
+        "options": {}
       },
-      "id": "telemetry-row-csv",
-      "name": "Telemetry row to CSV",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "id": "log-telemetry-row",
+      "name": "Log telemetry row",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
       "position": [
         2020,
         200
       ],
-      "notes": "One row per run, approved or rejected. results/telemetry-log.csv ships with the header."
-    },
-    {
-      "parameters": {
-        "operation": "write",
-        "fileName": "={{ $('AI config').first().json.results_dir + '/telemetry-log.csv' }}",
-        "dataPropertyName": "data",
-        "options": {
-          "append": true
-        }
-      },
-      "id": "append-telemetry-log",
-      "name": "Append telemetry-log.csv",
-      "type": "n8n-nodes-base.readWriteFile",
-      "typeVersion": 1.1,
-      "position": [
-        2240,
-        200
-      ],
-      "notes": "Writes to disk, so it needs self-hosted n8n. Seed the file with the header from results/telemetry-log.csv."
+      "notes": "One telemetry row per run, approved or rejected. Create a table named demo_telemetry_log with the column names from results/telemetry-log.csv."
     }
   ],
   "connections": {
@@ -576,7 +552,7 @@
             "index": 0
           },
           {
-            "node": "Order rows to CSV",
+            "node": "Split order rows",
             "type": "main",
             "index": 0
           }
@@ -598,29 +574,18 @@
       "main": [
         [
           {
-            "node": "Telemetry row to CSV",
+            "node": "Log telemetry row",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Telemetry row to CSV": {
+    "Split order rows": {
       "main": [
         [
           {
-            "node": "Append telemetry-log.csv",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Order rows to CSV": {
-      "main": [
-        [
-          {
-            "node": "Append orders-log.csv",
+            "node": "Log order rows",
             "type": "main",
             "index": 0
           }
@@ -640,6 +605,6 @@
     }
   ],
   "meta": {
-    "note": "Demo workflow with 100% invented data. No credentials included: import it, create a Header Auth credential (header name 'x-api-key', value = your Anthropic API key), select it on the 'LLM: interpret order' node, and run. To use another Anthropic model, change it in the 'AI config' node; a different provider also requires adapting 'Build LLM payload' and 'Validate JSON' to its API."
+    "note": "Demo workflow with 100% invented data. No credentials included: import it, create an OpenRouter credential in n8n, select it on the 'LLM: interpret order' node, and run. The call is OpenAI-compatible: to use another model or provider, change endpoint + model in 'AI config' and the credential on the HTTP node."
   }
 }
