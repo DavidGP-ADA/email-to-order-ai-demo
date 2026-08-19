@@ -224,7 +224,7 @@
           "values": [
             {
               "fieldType": "html",
-              "html": "<div style=\"text-align:left\"><h2>Human gate — review before it reaches the ERP</h2><p><b>Customer:</b> {{ $json.proposal.customer }}<br/><b>Requested delivery:</b> {{ $json.proposal.requestedDelivery || '-' }} &middot; <b>Logistics:</b> {{ $json.proposal.logisticsNotes || '-' }}<br/><b>Lines needing review:</b> {{ $json.needsReview }} &middot; <b>Total (priced lines):</b> {{ $json.proposal.total }} EUR</p><pre style=\"white-space:pre-wrap;text-align:left;background:#f5f5f5;padding:12px;border-radius:8px;font-size:13px\">{{ $json.proposalText }}</pre></div>"
+              "html": "<h3>Human gate — review before it reaches the ERP</h3><p><strong>Customer:</strong> {{ $json.proposal.customer }}<br><strong>Requested delivery:</strong> {{ $json.proposal.requestedDelivery || '-' }} · <strong>Logistics:</strong> {{ $json.proposal.logisticsNotes || '-' }}<br><strong>Lines needing review:</strong> {{ $json.needsReview }} · <strong>Total (priced lines):</strong> {{ $json.proposal.total }} EUR</p><hr>{{ $json.proposal.lines.map(l => '<p>' + (l.status === 'high' ? '✅' : (l.status === 'uncertain' ? '⚠️' : '⛔')) + ' <strong>' + l.n + '. ' + (l.reference !== '-' ? l.reference + ' — ' : '') + l.product + (l.format ? ' ' + l.format : '') + '</strong><br>' + l.quantity + ' ' + l.unit + (l.lineTotal !== null ? ' · ' + l.lineTotal + ' EUR' : ' · price pending human review') + (l.warning ? '<br><em>' + l.warning + '</em>' : '') + (l.candidates.length ? '<br><em>Candidates: ' + l.candidates.join(' | ') + '</em>' : '') + '</p>').join('') }}<hr>"
             },
             {
               "fieldLabel": "Decision",
