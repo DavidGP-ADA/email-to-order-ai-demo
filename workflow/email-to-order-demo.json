@@ -219,9 +219,13 @@
     {
       "parameters": {
         "formTitle": "Human gate — review before it reaches the ERP",
-        "formDescription": "=Customer: {{ $json.proposal.customer }}\nRequested delivery: {{ $json.proposal.requestedDelivery || '-' }}\nLogistics: {{ $json.proposal.logisticsNotes || '-' }}\nLines needing review: {{ $json.needsReview }}\nTotal: {{ $json.proposal.total }} EUR\n\n{{ $json.proposalText }}",
+        "formDescription": "The system proposes; you decide. Review the proposal, then choose.",
         "formFields": {
           "values": [
+            {
+              "fieldType": "html",
+              "html": "<div style=\"text-align:left\"><h2>Human gate — review before it reaches the ERP</h2><p><b>Customer:</b> {{ $json.proposal.customer }}<br/><b>Requested delivery:</b> {{ $json.proposal.requestedDelivery || '-' }} &middot; <b>Logistics:</b> {{ $json.proposal.logisticsNotes || '-' }}<br/><b>Lines needing review:</b> {{ $json.needsReview }} &middot; <b>Total (priced lines):</b> {{ $json.proposal.total }} EUR</p><pre style=\"white-space:pre-wrap;text-align:left;background:#f5f5f5;padding:12px;border-radius:8px;font-size:13px\">{{ $json.proposalText }}</pre></div>"
+            },
             {
               "fieldLabel": "Decision",
               "fieldType": "dropdown",
