@@ -1,0 +1,79 @@
+{
+  "name": "Email to Order — error handler (demo)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "error-trigger",
+      "name": "On workflow error",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        0
+      ],
+      "notes": "Fires whenever a workflow that selects this one as its Error Workflow fails. Without this, a failed run dies quietly and nobody finds out."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compose a readable alert from the error payload: workflow, node, message, execution link.\nconst e = $json;\nconst err = (e.execution && e.execution.error) || {};\nconst failedNode = (err.node && err.node.name) || 'unknown node';\nconst execRef = (e.execution && (e.execution.url || e.execution.id)) || 'n/a';\n\nreturn [{ json: {\n  subject: '[email-to-order demo] Workflow failed: ' + ((e.workflow && e.workflow.name) || 'unknown workflow'),\n  text: 'Workflow: ' + ((e.workflow && e.workflow.name) || 'unknown') + '\\n' +\n        'Failed node: ' + failedNode + '\\n' +\n        'Error: ' + (err.message || 'unknown error') + '\\n' +\n        'Execution: ' + execRef + '\\n' +\n        'Time: ' + new Date().toISOString()\n} }];"
+      },
+      "id": "compose-alert",
+      "name": "Compose alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        20,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "alerts@example.com",
+        "toEmail": "you@example.com",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {}
+      },
+      "id": "alert-email",
+      "name": "Alert by email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        0
+      ],
+      "notes": "Select your own SMTP credential and addresses, or swap this node for Slack/Telegram/whatever your team reads. The point is that failures reach a person."
+    }
+  ],
+  "connections": {
+    "On workflow error": {
+      "main": [
+        [
+          {
+            "node": "Compose alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose alert": {
+      "main": [
+        [
+          {
+            "node": "Alert by email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "note": "Import this workflow, point 'Alert by email' at your SMTP credential, then open the main demo workflow's Settings and select this one as its Error Workflow. A retry that exhausts its 3 attempts, or a validation throw, will then alert you instead of failing silently."
+  }
+}

@@ -27,8 +27,8 @@ is not, where the human gate sits, and what gets measured.
 4. **Deterministic code** matches each line against the catalog: exact reference first, then description scoring. The LLM never picks the product.
 5. Lines are labelled `high` / `uncertain` / `not_found`. Uncertain lines carry their candidate products.
 6. A proposal is built with prices and warnings, and sent to a **human gate**.
-7. Approved → written to the "ERP". Rejected or not-an-order → logged with the reason.
-8. Telemetry records lines resolved on the first pass, human corrections and cycle time.
+7. Approved → written to the "ERP" and appended to `orders-log.csv`. Rejected or not-an-order → logged with the reason.
+8. Telemetry writes one CSV row per run, approved or not: lines resolved on the first pass, human corrections, cycle time, model and prompt version.
 
 ```mermaid
 flowchart LR
@@ -89,9 +89,32 @@ Before/after process diagrams for these: [`docs/before-after.md`](docs/before-af
 2. Create a **Header Auth** credential (header name `x-api-key`, value = your own API key) and select it on the `LLM: interpret order` node. No credentials ship in this repo. The call is plain HTTP: switching to another Anthropic model is a one-field change in the `AI config` node; switching provider also means adapting the request builder and the response validator to that provider's API.
 3. Open the form URL of the trigger node, paste any file from [`data/sample-emails/`](data/sample-emails/), submit.
 4. Watch it run, then approve or correct at the human gate.
+5. Each run appends CSV rows to `orders-log.csv` and `telemetry-log.csv` under the path set
+   in `AI config` → `results_dir` (default `/tmp`). The [`results/`](results/) folder shows
+   the format. File writes need self-hosted n8n; on n8n Cloud, remove the two append nodes.
+6. Optional but recommended: import [`workflow/error-handler.json`](workflow/error-handler.json),
+   point its email node at your SMTP credential, and select it as the Error Workflow in the
+   main workflow's settings. A failed run then alerts you instead of dying quietly.
 
-The catalog is embedded in the matching node so the workflow runs standalone; the CSVs in
-`data/` are the same data in readable form.
+The catalog and the customer table are embedded in the matching node so the workflow runs
+standalone; the CSVs in `data/` are the same data in readable form.
+
+---
+
+## What would change in production
+
+The demo keeps the pattern honest but small. Wiring it to a real mailbox would add, in this
+order:
+
+- **Deduplication before the LLM**: a hash of message-id + sender, so a redelivered email can
+  never become two orders.
+- **Catalog and customers from the ERP or database**, not embedded in a node. Here they are
+  embedded on purpose so the workflow runs standalone.
+- **The error workflow wired to the team's channel** (included in this repo; it needs your
+  SMTP or chat credential).
+- **Queues and rate limits** on the mailbox trigger, so a burst of emails does not hammer the
+  LLM API.
+- **Identity from the login (SSO)** instead of a name typed into a form.
 
 ---
 
@@ -102,6 +125,7 @@ The catalog is embedded in the matching node so the workflow runs standalone; th
 | `data/catalog.csv` | 30 invented references: wall tile, porcelain floor, trims, adhesives, with formats, m² per box and prices |
 | `data/customers.csv` | 8 invented B2B customers |
 | `data/sample-emails/` | 12 emails, easy to hard: exact references, descriptions only, mixed units, messy threads, English, a non-order |
+| `results/` | Header-only CSVs the workflow appends to: one row per approved order line, one telemetry row per run |
 
 All of it invented for this demo. Any resemblance to a real company is coincidental.
 

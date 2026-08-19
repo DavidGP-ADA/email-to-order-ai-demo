@@ -1,9 +1,9 @@
-codigo,nombre,ciudad,condiciones_pago
-C001,Almacenes Vega SL,Valencia,30 dias
-C002,Construcciones Prado SL,Madrid,contado
-C003,Distribuciones Iberica SA,Zaragoza,60 dias
-C004,Materiales Cantabria SL,Santander,30 dias
-C005,Grupo Reformas Levante SL,Alicante,contado
-C006,Almacen del Azulejo Sur SL,Sevilla,45 dias
-C007,BricoNorte Distribucion SL,Bilbao,30 dias
-C008,Ceramicas y Banos Ruiz SL,Toledo,30 dias
+codigo,nombre,ciudad,condiciones_pago,dominios_email
+C001,Almacenes Vega SL,Valencia,30 dias,almacenesvega-demo.es
+C002,Construcciones Prado SL,Madrid,contado,construccionesprado-demo.es
+C003,Distribuciones Iberica SA,Zaragoza,60 dias,distribucionesiberica-demo.es;iberica-distribution-demo.com
+C004,Materiales Cantabria SL,Santander,30 dias,materialescantabria-demo.es
+C005,Grupo Reformas Levante SL,Alicante,contado,reformaslevante-demo.es
+C006,Almacen del Azulejo Sur SL,Sevilla,45 dias,azulejosur-demo.es
+C007,BricoNorte Distribucion SL,Bilbao,30 dias,briconorte-demo.es
+C008,Ceramicas y Banos Ruiz SL,Toledo,30 dias,ceramicasruiz-demo.es

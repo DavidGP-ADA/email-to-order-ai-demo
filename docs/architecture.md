@@ -8,9 +8,9 @@ flowchart LR
     D --> E["Match against catalog<br/>exact ref → fuzzy description"]
     E --> G["Build order proposal<br/>prices + warnings, uncertain lines carry their candidates"]
     G --> H[["HUMAN GATE<br/>review · correct · approve"]]
-    H -- approved --> I[("Write to ERP<br/>simulated in demo")]
+    H -- approved --> I[("Write to ERP<br/>+ append orders-log.csv")]
     H -- rejected --> J["Log rejection<br/>+ reason"]
-    I --> K["Telemetry<br/>lines resolved · corrections · cycle time"]
+    I --> K["Telemetry<br/>one CSV row per run"]
     J --> K
 ```
 
@@ -29,8 +29,9 @@ flowchart LR
   give the system instructions. Details in [`prompts/order-interpreter.md`](../prompts/order-interpreter.md).
 - **Telemetry on outcomes.** The system logs how many lines were resolved automatically and
   how many the human corrected. That is how the accuracy figure is *measured* rather than
-  estimated. In this demo the ERP write is simulated: the node builds the order rows, and
-  `results/orders-log.csv` shows the format.
+  estimated. Every run, approved or rejected, appends one telemetry row to
+  `telemetry-log.csv`; approved orders also append their lines to `orders-log.csv` (path set
+  in `AI config`, header-only samples in `results/`).
 - In the demo, the trigger is an n8n form (paste one of the sample emails and watch it run).
   In production this same flow hangs off a real mailbox trigger; the form makes the demo
   runnable live in interviews with zero credentials.

@@ -1,1 +1,1 @@
-order_id,customer,reference,product,quantity,unit,line_total_eur,approved_by,decision
+order_id,customer_code,customer,reference,product,quantity,unit,line_total_eur,submitted_by,approved_by,decision
