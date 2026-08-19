@@ -120,6 +120,11 @@ orden:
 - **La identidad desde el login (SSO)** en vez de un nombre tecleado en un formulario.
 - **El email crudo archivado nada más entrar.** En producción el propio buzón es el registro;
   en la demo, el historial de ejecuciones de n8n guarda cada envío.
+- **Aplicar las correcciones al pedido grabado.** Hoy la corrección del revisor queda en la
+  nota y en la telemetría, pero la línea grabada conserva su referencia sin resolver (las
+  líneas con `-` de `results/orders-log.csv`). La corrida registrada también enseñó que el
+  cruce puede ofrecer solo aproximaciones para una línea vaga ("su rodapié" trajo pavimentos
+  como candidatos); lo caza la persona, que es exactamente para lo que existe la compuerta.
 
 ---
 
@@ -133,6 +138,13 @@ orden:
 | `results/` | Espejos en CSV de las dos Data Tables: una fila por línea de pedido aprobada, y una de telemetría por ejecución |
 
 Todo inventado para esta demo. Cualquier parecido con una empresa real es casualidad.
+
+Los dos CSV de `results/` son el registro exportado de una corrida completa de los 12 emails
+de ejemplo (agosto 2026): 30 líneas de pedido, 24 resueltas solas a la primera, 5 corregidas
+en la compuerta, un pedido rechazado por la referencia desconocida y la reclamación apartada
+como no-pedido. La corrida la condujo de punta a punta Claude, el asistente de IA de
+Anthropic, haciendo de administrativo bajo supervisión — por eso `approved_by` dice
+"Claude (demo run)".
 
 ---
 

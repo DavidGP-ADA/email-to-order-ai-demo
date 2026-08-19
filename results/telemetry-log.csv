@@ -1,1 +1,13 @@
 order_id,outcome,total_lines,auto_resolved_lines,flagged_lines,human_corrections,first_pass_accuracy_pct,human_correction_rate_pct,cycle_seconds,reviewer,model,prompt_version
+DEMO-433135,Approve,1,1,0,0,100,,29.8,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1
+DEMO-614325,Approve,4,4,0,0,100,,20,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1
+DEMO-648656,Approve,2,2,0,0,100,,14.8,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1
+DEMO-687830,Approve with corrections,4,3,1,1,75,100,18.4,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1
+DEMO-727847,Approve with corrections,3,2,1,1,66.7,100,19.3,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1
+DEMO-764147,Approve,3,3,0,0,100,,15,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1
+,rejected_by_human,3,2,1,0,66.7,0,16,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1
+DEMO-843767,Approve with corrections,2,0,2,2,0,100,22.7,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1
+DEMO-878016,Approve,3,3,0,0,100,,16.4,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1
+DEMO-915795,Approve,2,2,0,0,100,,15.3,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1
+DEMO-951852,Approve with corrections,3,2,1,1,66.7,100,17.2,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1
+,not_an_order,0,0,0,0,,,4,Claude (demo run),anthropic/claude-sonnet-4.6,v1.1

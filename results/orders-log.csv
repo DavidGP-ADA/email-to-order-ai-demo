@@ -1,1 +1,28 @@
 order_id,customer_code,customer,reference,product,quantity,unit,line_total_eur,submitted_by,approved_by,decision
+DEMO-433135,C001,Almacenes Vega SL (C001 - 30 dias),AZ-1001,Azulejo pared blanco brillo,40,cajas,556,Claude (demo run),Claude (demo run),Approve
+DEMO-614325,C003,Distribuciones Iberica SA (C003 - 60 dias),PV-2001,Pavimento porcelanico gris cemento,60,cajas,1188,Claude (demo run),Claude (demo run),Approve
+DEMO-614325,C003,Distribuciones Iberica SA (C003 - 60 dias),PV-2003,Pavimento porcelanico madera roble,25,cajas,622.5,Claude (demo run),Claude (demo run),Approve
+DEMO-614325,C003,Distribuciones Iberica SA (C003 - 60 dias),PE-3001,Rodapie porcelanico gris cemento,12,cajas,223.2,Claude (demo run),Claude (demo run),Approve
+DEMO-614325,C003,Distribuciones Iberica SA (C003 - 60 dias),QM-4001,Adhesivo porcelanico flexible C2TE gris,30,sacos,294,Claude (demo run),Claude (demo run),Approve
+DEMO-648656,C002,Construcciones Prado SL (C002 - contado),AZ-1001,Azulejo pared blanco brillo,50,cajas,695,Claude (demo run),Claude (demo run),Approve
+DEMO-648656,C002,Construcciones Prado SL (C002 - contado),PV-2001,Pavimento porcelanico gris cemento,20,cajas,396,Claude (demo run),Claude (demo run),Approve
+DEMO-687830,C004,Materiales Cantabria SL (C004 - 30 dias),PV-2006,Pavimento porcelanico negro basalto,35,cajas,784,Claude (demo run),Claude (demo run),Approve with corrections
+DEMO-687830,C004,Materiales Cantabria SL (C004 - 30 dias),AZ-1006,Azulejo metro blanco biselado,15,cajas,243,Claude (demo run),Claude (demo run),Approve with corrections
+DEMO-687830,C004,Materiales Cantabria SL (C004 - 30 dias),-,rodapié a juego con el pavimento madera roble,10,cajas,,Claude (demo run),Claude (demo run),Approve with corrections
+DEMO-687830,C004,Materiales Cantabria SL (C004 - 30 dias),QM-4003,Junta coloreada gris cemento,20,sacos,148,Claude (demo run),Claude (demo run),Approve with corrections
+DEMO-727847,C005,Grupo Reformas Levante SL (C005 - contado),PV-2003,Pavimento porcelanico madera roble,70,cajas,1743,Claude (demo run),Claude (demo run),Approve with corrections
+DEMO-727847,C005,Grupo Reformas Levante SL (C005 - contado),AZ-1006,Azulejo metro blanco biselado,10,cajas,162,Claude (demo run),Claude (demo run),Approve with corrections
+DEMO-727847,C005,Grupo Reformas Levante SL (C005 - contado),-,Adhesivo para porcelánico,15,sacos,,Claude (demo run),Claude (demo run),Approve with corrections
+DEMO-764147,C007,BricoNorte Distribucion SL (C007 - 30 dias),AZ-1003,Azulejo pared gris perla brillo,45,cajas,657,Claude (demo run),Claude (demo run),Approve
+DEMO-764147,C007,BricoNorte Distribucion SL (C007 - 30 dias),PE-3003,Peldano porcelanico gris cemento,18,cajas,718.2,Claude (demo run),Claude (demo run),Approve
+DEMO-764147,C007,BricoNorte Distribucion SL (C007 - 30 dias),QM-4004,Junta epoxi blanca,6,kits,197.4,Claude (demo run),Claude (demo run),Approve
+DEMO-843767,C006,Almacen del Azulejo Sur SL (C006 - 45 dias),-,Pavimento imitación madera 20x120,30,cajas,,Claude (demo run),Claude (demo run),Approve with corrections
+DEMO-843767,C006,Almacen del Azulejo Sur SL (C006 - 45 dias),-,Rodapié pavimento imitación madera 20x120,8,cajas,,Claude (demo run),Claude (demo run),Approve with corrections
+DEMO-878016,C008,Ceramicas y Banos Ruiz SL (C008 - 30 dias),AZ-1004,Azulejo pared beige arena,50,cajas,640,Claude (demo run),Claude (demo run),Approve
+DEMO-878016,C008,Ceramicas y Banos Ruiz SL (C008 - 30 dias),AZ-1005,Azulejo pared verde salvia,50,cajas,770,Claude (demo run),Claude (demo run),Approve
+DEMO-878016,C008,Ceramicas y Banos Ruiz SL (C008 - 30 dias),PE-3006,Perfil esquinero aluminio blanco,15,cajas,298.5,Claude (demo run),Claude (demo run),Approve
+DEMO-915795,C001,Almacenes Vega SL (C001 - 30 dias),PV-2010,Pavimento porcelanico marmol calacatta,8,cajas,391.2,Claude (demo run),Claude (demo run),Approve
+DEMO-915795,C001,Almacenes Vega SL (C001 - 30 dias),PV-2005,Pavimento porcelanico blanco pulido,12,cajas,404.4,Claude (demo run),Claude (demo run),Approve
+DEMO-951852,C003,Distribuciones Iberica SA (C003 - 60 dias),AZ-1009,Azulejo pared hexagonal blanco,45,cajas,967.5,Claude (demo run),Claude (demo run),Approve with corrections
+DEMO-951852,C003,Distribuciones Iberica SA (C003 - 60 dias),PV-2007,Pavimento porcelanico terrazo venecia,20,cajas,462,Claude (demo run),Claude (demo run),Approve with corrections
+DEMO-951852,C003,Distribuciones Iberica SA (C003 - 60 dias),-,grey grout,10,sacos,,Claude (demo run),Claude (demo run),Approve with corrections

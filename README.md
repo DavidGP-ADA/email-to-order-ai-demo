@@ -118,6 +118,11 @@ order:
 - **Identity from the login (SSO)** instead of a name typed into a form.
 - **Raw inbound emails archived on arrival.** In production the mailbox itself is the record;
   in the demo, the n8n execution history keeps each submission.
+- **Corrections applied to the stored order.** Today a reviewer's correction is recorded in
+  the note and counted in telemetry, but the stored line keeps its unresolved reference (the
+  `-` lines in `results/orders-log.csv`). The recorded run also showed the matcher can offer
+  only near-misses for a vague line ("su rodapié" drew floor tiles as candidates); the human
+  catches it, which is exactly what the gate is for.
 
 ---
 
@@ -131,6 +136,12 @@ order:
 | `results/` | CSV mirrors of the two Data Tables: one row per approved order line, one telemetry row per run |
 
 All of it invented for this demo. Any resemblance to a real company is coincidental.
+
+The two CSVs in `results/` are the exported log of one full run of the 12 sample emails
+(August 2026): 30 order lines, 24 resolved automatically on the first pass, 5 corrected at
+the gate, one order rejected over the unknown reference, and the complaint set aside as
+not-an-order. The run was driven end to end by Claude, Anthropic's AI assistant, acting as
+the order clerk under supervision — which is why `approved_by` reads "Claude (demo run)".
 
 ---
 
